@@ -1,27 +1,35 @@
 document.addEventListener("DOMContentLoaded", function () {
     const searchBox = document.getElementById("searchQuery");
     const searchButton = document.getElementById("searchButton");
+    const resultsDiv = document.getElementById("searchResults");
 
-    searchButton.addEventListener("click", function () {
+    async function performSearch() {
         const query = searchBox.value.trim();
-        if (query !== "") {
-            const apiURL = `https://7da7f4a0-5ef0-4edb-b4d9-84a2bfefe3f4-00-10oww8dwteayw.picard.replit.dev/search?q=${encodeURIComponent(query)}`;
+        if (query === "") return;
 
-fetch(apiURL)
-    .then(response => response.json())
-    .then(data => {
-        console.log("API Response:", data);
-        window.location.href = data.searchURL;  // Redirects to the search result
-    })
-    .catch(error => console.error("Error fetching data:", error));
+        try {
+            const response = await fetch(`https://your-replit-api-url/search?q=${encodeURIComponent(query)}`);
+            const data = await response.json();
 
-            window.location.href = googleSearchURL;
+            resultsDiv.innerHTML = "<h2>Search Results:</h2>";
+            if (data.results) {
+                data.results.forEach(result => {
+                    const p = document.createElement("p");
+                    p.innerText = result;
+                    resultsDiv.appendChild(p);
+                });
+            } else {
+                resultsDiv.innerHTML += "<p>No results found.</p>";
+            }
+        } catch (error) {
+            resultsDiv.innerHTML = "<p>Error fetching results.</p>";
         }
-    });
+    }
 
+    searchButton.addEventListener("click", performSearch);
     searchBox.addEventListener("keypress", function (event) {
         if (event.key === "Enter") {
-            searchButton.click();
+            performSearch();
         }
     });
 });
